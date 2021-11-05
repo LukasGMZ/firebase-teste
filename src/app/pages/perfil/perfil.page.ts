@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertController, ModalController, } from '@ionic/angular';
-import { ServicesPerfilService } from '../../services/services-perfil.service';
-import { take } from 'rxjs/operators';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AlertController, LoadingController } from '@ionic/angular';
+import { EmailService } from '../../services/email.service';
 
 @Component({
   selector: 'app-perfil',
@@ -9,22 +10,44 @@ import { take } from 'rxjs/operators';
   styleUrls: ['./perfil.page.scss'],
 })
 export class PerfilPage implements OnInit {
+  emailForm: FormGroup;
 
-  tituloPerfil:string = "Perfil";
-  constructor(private perfilService: ServicesPerfilService, private alertCtrl: AlertController) {}
-
-  async presentToast() {
-    const toast = await this.toastController.create({
-      message: 'email vinculado com sucesso.',
-      duration: 3000,
-      color: 'danger',
-      position: 'bottom'
-      //popup rodape
-    });
-    toast.present();
-  }
+  constructor(
+    private fb: FormBuilder,
+    private alertCtrl: AlertController,
+    private router: Router,
+    private loadingController: LoadingController,
+    private emailService: EmailService
+  ) { }
 
   ngOnInit() {
+    this.emailForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
+    });
+  }
+
+  async cadastraEmail() {
+    const loading = await this.loadingController.create();
+    await loading.present();
+    this.emailService.emailCadastro(this.emailForm.value).then(
+        (user) => {
+          loading.dismiss();
+        },
+        async (err) => {
+          loading.dismiss();
+          const alert = await this.alertCtrl.create({
+            header: 'Falha no cadastro',
+            message: err.message,
+            buttons: ['OK'],
+          });
+ 
+          await alert.present();
+        }
+      );
+  }
+
+  get emailGet() {
+    return this.emailForm.get('email');
   }
 
 }
