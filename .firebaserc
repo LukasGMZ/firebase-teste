@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "promoaquiapp": {
+      "hosting": {
+        "app": [
+          "promoaquiapp"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "promoaquiapp"
+  }
+}
